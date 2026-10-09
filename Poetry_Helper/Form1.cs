@@ -59,11 +59,12 @@ namespace Poetry_Helper
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Vertical,
-                SplitterDistance = 700,
-                Panel1MinSize = 500,
-                Panel2MinSize = 420,
-                FixedPanel = System.Windows.Forms.FixedPanel.None
+                FixedPanel = System.Windows.Forms.FixedPanel.None,
+                Size = ClientSize
             };
+            split.Panel1MinSize = 500;
+            split.Panel2MinSize = 420;
+            split.SplitterDistance = 700;
             Controls.Add(split);
 
             var formScroll = new Panel
