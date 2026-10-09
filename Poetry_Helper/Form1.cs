@@ -12,9 +12,5 @@ namespace Poetry_Helper
             ClientSizeChanged += (_, _) => CentralizeNames();
         }
 
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }
