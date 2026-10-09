@@ -16,31 +16,58 @@ namespace Poetry_Helper
             advRadio = radioButton4;
             partOfSpeechRadios = new[] { nounRadio, verbRadio, adjRadio, advRadio };
 
+            WordBox.PlaceholderText = "Lemma / headword";
             textBox1.PlaceholderText = "Alternative forms, comma-separated";
             textBox2.PlaceholderText = "First etymology term";
             textBox3.PlaceholderText = "Second etymology term";
-            textBox4.PlaceholderText = "First term gloss";
-            textBox5.PlaceholderText = "Second term gloss";
-            textBox6.PlaceholderText = "Pronunciation spelling (optional)";
-            textBox7.PlaceholderText = "Extra IPA parameter (optional)";
-            textBox8.PlaceholderText = "Lemma / headword";
+            textBox4.PlaceholderText = "First term gloss (t1)";
+            textBox5.PlaceholderText = "Second term gloss (t2)";
+            textBox6.PlaceholderText = "Third etymology term";
+            textBox7.PlaceholderText = "Third term gloss (t3)";
+            textBox8.PlaceholderText = "Definition / gloss (separate senses with ;)";
+            textBox8.MaxLength = 4000;
             bosTitle.PlaceholderText = "Bosworth entry";
+            bosNum.PlaceholderText = "BT ref. number";
             OEDTitle.PlaceholderText = "Dictionary of Old English entry";
+            OEDnum.PlaceholderText = "DOE ID";
             textInput.Multiline = true;
             textInput.ScrollBars = RichTextBoxScrollBars.Vertical;
-            new ToolTip().SetToolTip(textInput, "One quote per line: Old English text | translation | title | year");
+            tInput.Multiline = true;
+            tInput.ScrollBars = RichTextBoxScrollBars.Vertical;
+            titleInput.PlaceholderText = "Source title";
+            yearInput.PlaceholderText = "Year";
+            new ToolTip().SetToolTip(textInput, "Old English quotation. Line breaks are preserved.");
+            new ToolTip().SetToolTip(tInput, "English translation. Use one line per translated line; + adds a translation line.");
 
             button1.Click += (_, _) => GenerateWikitext();
             button2.Click += (_, _) => ClearForm();
             AddLineButtpn.Click += (_, _) => AddQuoteLine();
             checkBox1.CheckedChanged += (_, _) => textBox1.Enabled = checkBox1.Checked;
-            quoteBox.CheckedChanged += (_, _) => textInput.Enabled = quoteBox.Checked;
-            checkBox2.CheckedChanged += (_, _) => bosTitle.Enabled = checkBox2.Checked;
-            checkBox3.CheckedChanged += (_, _) => OEDTitle.Enabled = checkBox3.Checked;
+            quoteBox.CheckedChanged += (_, _) => SetQuoteInputsEnabled(quoteBox.Checked);
+            checkBox2.CheckedChanged += (_, _) =>
+            {
+                bosTitle.Enabled = checkBox2.Checked;
+                bosNum.Enabled = checkBox2.Checked;
+            };
+            checkBox3.CheckedChanged += (_, _) =>
+            {
+                OEDTitle.Enabled = checkBox3.Checked;
+                OEDnum.Enabled = checkBox3.Checked;
+            };
+
             textBox1.Enabled = checkBox1.Checked;
-            textInput.Enabled = quoteBox.Checked;
-            bosTitle.Enabled = checkBox2.Checked;
-            OEDTitle.Enabled = checkBox3.Checked;
+            SetQuoteInputsEnabled(quoteBox.Checked);
+            bosTitle.Enabled = bosNum.Enabled = checkBox2.Checked;
+            OEDTitle.Enabled = OEDnum.Enabled = checkBox3.Checked;
+        }
+
+        private void SetQuoteInputsEnabled(bool enabled)
+        {
+            textInput.Enabled = enabled;
+            tInput.Enabled = enabled;
+            titleInput.Enabled = enabled;
+            yearInput.Enabled = enabled;
+            AddLineButtpn.Enabled = enabled;
         }
 
         private void NamesInit()
@@ -70,30 +97,48 @@ namespace Poetry_Helper
         private void AddQuoteLine()
         {
             if (!quoteBox.Checked) quoteBox.Checked = true;
-            if (textInput.TextLength > 0 && !textInput.Text.EndsWith(Environment.NewLine, StringComparison.Ordinal))
-                textInput.AppendText(Environment.NewLine);
-            textInput.Focus();
-            textInput.SelectionStart = textInput.TextLength;
+
+            // The add button adds a translation line only; the source quotation remains untouched.
+            if (tInput.TextLength > 0 &&
+                !tInput.Text.EndsWith(Environment.NewLine, StringComparison.Ordinal))
+            {
+                tInput.AppendText(Environment.NewLine);
+            }
+
+            tInput.Focus();
+            tInput.SelectionStart = tInput.TextLength;
         }
 
         private void ClearForm()
         {
-            foreach (TextBox box in new[] { textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7, textBox8, bosTitle, OEDTitle }) box.Clear();
+            foreach (TextBox box in new[]
+            {
+                textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7,
+                textBox8, WordBox, bosTitle, OEDTitle, bosNum, OEDnum, titleInput, yearInput
+            })
+            {
+                box.Clear();
+            }
+
             textInput.Clear();
+            tInput.Clear();
             checkBox1.Checked = quoteBox.Checked = checkBox2.Checked = checkBox3.Checked = false;
             nounRadio.Checked = true;
-            comboBox1.Text = "com"; comboBox2.SelectedItem = "m";
+            comboBox1.Text = "com";
+            comboBox2.SelectedItem = "m";
             comboBox3.Text = comboBox4.Text = comboBox5.Text = "";
-            textBox8.Focus();
+            WordBox.Focus();
         }
 
         private void GenerateWikitext()
         {
-            string lemma = textBox8.Text.Trim();
+            string lemma = WordBox.Text.Trim();
             if (lemma.Length == 0)
             {
-                MessageBox.Show("Enter the lemma/headword first.", "Missing headword", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                textBox8.Focus(); return;
+                MessageBox.Show("Enter the lemma/headword first.", "Missing headword",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                WordBox.Focus();
+                return;
             }
 
             string pos = nounRadio.Checked ? "noun" : verbRadio.Checked ? "verb" : adjRadio.Checked ? "adj" : "adv";
@@ -101,79 +146,136 @@ namespace Poetry_Helper
             var output = new System.Text.StringBuilder();
             output.AppendLine("==Old English==").AppendLine();
 
-            if (checkBox1.Checked && textBox1.Text.Trim().Length > 0)
+            if (checkBox1.Checked)
             {
-                output.AppendLine("===Alternative forms===");
-                foreach (string alt in SplitValues(textBox1.Text)) output.AppendLine("* {{alt|ang|" + W(alt) + "}}");
-                output.AppendLine();
+                List<string> alternatives = SplitValues(textBox1.Text);
+                if (alternatives.Count > 0)
+                {
+                    EnsureBlankLine(output);
+                    output.AppendLine("===Alternative forms===");
+                    output.Append("* {{alt|ang|")
+                        .Append(string.Join("|", alternatives.Select(W)))
+                        .AppendLine("}}");
+                }
             }
 
             string etymology = comboBox1.Text.Trim();
-            string first = textBox2.Text.Trim(), second = textBox3.Text.Trim();
-            if (first.Length > 0 || second.Length > 0)
+            string[] terms = { textBox2.Text.Trim(), textBox3.Text.Trim(), textBox6.Text.Trim() };
+            string[] glosses = { textBox4.Text.Trim(), textBox5.Text.Trim(), textBox7.Text.Trim() };
+
+            if (terms.Any(s => s.Length > 0) || glosses.Any(s => s.Length > 0))
             {
+                EnsureBlankLine(output);
                 output.AppendLine("===Etymology===");
-                if (etymology == "com" && first.Length > 0 && second.Length > 0)
+                string template = etymology == "af" ? "af" : "com";
+                output.Append("From {{").Append(template).Append("|1=ang");
+
+                // Explicit argument numbers preserve the relation between each term and t1/t2/t3.
+                for (int i = 0; i < terms.Length; i++)
                 {
-                    output.Append("From {{com|ang|").Append(W(first));
-                    if (textBox4.Text.Trim().Length > 0) output.Append("|t1=").Append(W(textBox4.Text.Trim()));
-                    output.Append('|').Append(W(second));
-                    if (textBox5.Text.Trim().Length > 0) output.Append("|t2=").Append(W(textBox5.Text.Trim()));
-                    output.AppendLine("}}.");
+                    if (terms[i].Length > 0)
+                        output.Append('|').Append(i + 2).Append('=').Append(W(terms[i]));
                 }
-                else
+                for (int i = 0; i < glosses.Length; i++)
                 {
-                    output.Append("From {{").Append(etymology.Length > 0 ? W(etymology) : "inh+").Append("|ang");
-                    if (first.Length > 0) output.Append('|').Append(W(first));
-                    if (second.Length > 0) output.Append('|').Append(W(second));
-                    output.AppendLine("}}.");
+                    if (glosses[i].Length > 0)
+                        output.Append("|t").Append(i + 1).Append('=').Append(W(glosses[i]));
                 }
-                output.AppendLine();
+                output.AppendLine("}}.");
             }
 
+            EnsureBlankLine(output);
             output.AppendLine("===Pronunciation===");
-            output.Append("* {{ang-IPA|").Append(W(textBox6.Text.Trim().Length > 0 ? textBox6.Text.Trim() : lemma)).Append("|pos=").Append(pos);
-            if (textBox7.Text.Trim().Length > 0) output.Append('|').Append(W(textBox7.Text.Trim()));
-            output.AppendLine("}}").AppendLine();
+            output.Append("* {{ang-IPA|").Append(W(lemma)).Append("|pos=").Append(pos).AppendLine("}}");
 
+            EnsureBlankLine(output);
             output.Append("===").Append(section).AppendLine("===");
+
             if (nounRadio.Checked)
-                output.Append("{{ang-noun|").Append(W(lemma)).Append(comboBox2.Text.Trim().Length > 0 ? "|" + W(comboBox2.Text.Trim()) : "").Append("}}");
-            else
-                output.Append("{{ang-").Append(pos).Append('|').Append(W(lemma)).Append("}}");
-
-            var tags = new[] { comboBox3.Text.Trim(), comboBox4.Text.Trim() }.Where(s => s.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-            if (tags.Length > 0) output.Append(" {{tlb|ang|").Append(string.Join("|", tags.Select(W))).Append("}}");
-            output.AppendLine().AppendLine("# [[").Append(lemma).AppendLine("]]");
-
-            if (quoteBox.Checked)
             {
-                foreach (string line in textInput.Lines.Select(s => s.Trim()).Where(s => s.Length > 0))
+                string gender = comboBox2.Text.Trim();
+                output.Append("{{ang-noun");
+                if (gender.Length > 0) output.Append('|').Append(W(gender));
+                output.Append("|head=").Append(W(lemma)).Append("}}");
+            }
+            else
+            {
+                // Keep the basic POS path adaptable; noun-specific morphology remains the fully
+                // supported form while each selection still supplies its own pronunciation pos.
+                output.Append("{{ang-").Append(pos).Append('|').Append(W(lemma)).Append("}}");
+            }
+            output.AppendLine();
+
+            var tags = new[] { comboBox3.Text.Trim(), comboBox4.Text.Trim() }
+                .Where(s => s.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            List<string> senses = SplitSenses(textBox8.Text);
+            if (senses.Count == 0) senses.Add("[[" + lemma + "]]");
+            foreach (string sense in senses)
+            {
+                output.Append("#");
+                if (tags.Length > 0)
+                    output.Append(" {{lb|ang|").Append(string.Join("|", tags.Select(W))).Append("}}");
+                output.Append(' ').AppendLine(sense);
+            }
+
+            if (quoteBox.Checked && textInput.Text.Trim().Length > 0)
+            {
+                string title = titleInput.Text.Trim();
+                if (title.Length == 0)
                 {
-                    string[] f = line.Split('|').Select(s => s.Trim()).ToArray();
-                    string quoteText = f.ElementAtOrDefault(0) ?? "";
-                    string translation = f.ElementAtOrDefault(1) ?? "";
-                    string boldQuote = f.ElementAtOrDefault(4) ?? "";
-                    string boldTranslation = f.ElementAtOrDefault(5) ?? "";
-                    if (boldQuote.Length > 0) quoteText = Emphasize(quoteText, boldQuote);
-                    if (boldTranslation.Length > 0) translation = Emphasize(translation, boldTranslation);
-                    output.Append("#* {{quote-book|ang|text=''").Append(quoteText).Append("''");
-                    if (translation.Length > 0) output.Append("|t=").Append(W(translation));
-                    if (f.Length > 2 && f[2].Length > 0) output.Append("|title=").Append(W(f[2]));
-                    if (f.Length > 3 && f[3].Length > 0) output.Append("|year=").Append(W(f[3]));
-                    output.AppendLine("}}");
+                    MessageBox.Show("Enter the source title for the quotation.", "Missing quotation title",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    titleInput.Focus();
+                    return;
                 }
-                output.AppendLine();
+
+                string quotedText = FormatQuoteText(textInput.Text, lemma);
+                string translations = FormatMultiline(tInput.Text);
+                output.Append("#* {{quote-book|ang|title=").Append(W(title));
+                if (yearInput.Text.Trim().Length > 0)
+                    output.Append("|year=").Append(W(yearInput.Text.Trim()));
+                output.Append("|text=").Append(quotedText);
+                if (translations.Length > 0) output.Append("|t=").Append(translations);
+                output.AppendLine("}}");
             }
 
             if (nounRadio.Checked && comboBox5.Text.Trim().Length > 0)
-                output.AppendLine("====Declension====").Append("{{ang-decl-noun-").Append(W(comboBox5.Text.Trim())).Append('-').Append(W(comboBox2.Text.Trim())).Append('|').Append(W(lemma)).AppendLine("}}").AppendLine();
+            {
+                EnsureBlankLine(output);
+                output.AppendLine("====Declension====");
+                output.Append("{{ang-decl-noun-")
+                    .Append(W(comboBox5.Text.Trim())).Append('-')
+                    .Append(W(comboBox2.Text.Trim())).Append('|')
+                    .Append(W(lemma)).AppendLine("}}");
+            }
 
             if (checkBox2.Checked || checkBox3.Checked)
             {
+                EnsureBlankLine(output);
                 output.AppendLine("===References===");
-                if (checkBox2.Checked && bosTitle.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:BT|" + W(bosTitle.Text.Trim()) + "}}");
-                if (checkBox3.Checked && OEDTitle.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:Dictionary of Old English|" + W(OEDTitle.Text.Trim()) + "}}");
+
+                if (checkBox2.Checked)
+                {
+                    string btEntry = bosTitle.Text.Trim();
+                    string btRef = bosNum.Text.Trim();
+                    output.Append("* {{R:ang:BT");
+                    if (btEntry.Length > 0) output.Append('|').Append(W(btEntry));
+                    if (btRef.Length > 0) output.Append("|ref=").Append(W(btRef));
+                    output.AppendLine("}}");
+                }
+
+                if (checkBox3.Checked)
+                {
+                    string doeEntry = OEDTitle.Text.Trim();
+                    string doeId = OEDnum.Text.Trim();
+                    output.Append("* {{R:ang:Dictionary of Old English");
+                    if (doeEntry.Length > 0) output.Append("|entry=").Append(W(doeEntry));
+                    if (doeId.Length > 0) output.Append("|id=").Append(W(doeId));
+                    output.AppendLine("}}");
+                }
             }
 
             ShowGeneratedWikitext(output.ToString(), lemma);
@@ -236,8 +338,50 @@ namespace Poetry_Helper
         }
 
         private static List<string> SplitValues(string value) =>
-            value.Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            value.Split(new[] { ',', ';', '\\n', '\\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        private static List<string> SplitSenses(string value) =>
+            value.Split(new[] { ';', '\\n', '\\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
+
+        private static string FormatQuoteText(string value, string lemma)
+        {
+            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
+            string[] lines = normalized.Split('\\n');
+            int count = lines.Length;
+            while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
+            if (count == 0) return "";
+
+            for (int i = 0; i < count; i++)
+            {
+                lines[i] = lines[i].Trim();
+                if (lines[i].Length > 0) lines[i] = Emphasize(lines[i], lemma);
+                lines[i] = W(lines[i]);
+            }
+            return string.Join("<br />", lines.Take(count));
+        }
+
+        private static string FormatMultiline(string value)
+        {
+            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
+            string[] lines = normalized.Split('\\n');
+            int count = lines.Length;
+            while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
+            for (int i = 0; i < count; i++) lines[i] = W(lines[i].Trim());
+            return string.Join("<br />", lines.Take(count));
+        }
+
+        private static void EnsureBlankLine(System.Text.StringBuilder output)
+        {
+            string current = output.ToString();
+            if (current.Length == 0) return;
+
+            string newline = Environment.NewLine;
+            if (current.EndsWith(newline + newline, StringComparison.Ordinal)) return;
+            if (!current.EndsWith(newline, StringComparison.Ordinal)) output.AppendLine();
+            output.AppendLine();
+        }
 
         private static string Emphasize(string text, string phrase)
         {
