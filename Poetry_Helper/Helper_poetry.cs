@@ -131,13 +131,10 @@ namespace Poetry_Helper
                 output.AppendLine();
             }
 
-            if (textBox6.Text.Trim().Length > 0 || textBox7.Text.Trim().Length > 0)
-            {
-                output.AppendLine("===Pronunciation===");
-                output.Append(" * {{ang-IPA|").Append(W(textBox6.Text.Trim().Length > 0 ? textBox6.Text.Trim() : lemma)).Append("|pos=").Append(pos);
-                if (textBox7.Text.Trim().Length > 0) output.Append('|').Append(W(textBox7.Text.Trim()));
-                output.AppendLine("}}").AppendLine();
-            }
+            output.AppendLine("===Pronunciation===");
+            output.Append("* {{ang-IPA|").Append(W(textBox6.Text.Trim().Length > 0 ? textBox6.Text.Trim() : lemma)).Append("|pos=").Append(pos);
+            if (textBox7.Text.Trim().Length > 0) output.Append('|').Append(W(textBox7.Text.Trim()));
+            output.AppendLine("}}").AppendLine();
 
             output.Append("===").Append(section).AppendLine("===");
             if (nounRadio.Checked)
