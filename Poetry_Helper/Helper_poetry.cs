@@ -151,8 +151,14 @@ namespace Poetry_Helper
                 foreach (string line in richTextBox1.Lines.Select(s => s.Trim()).Where(s => s.Length > 0))
                 {
                     string[] f = line.Split('|').Select(s => s.Trim()).ToArray();
-                    output.Append("#* {{quote-book|ang|text=''").Append(f.ElementAtOrDefault(0) ?? "").Append("''");
-                    if (f.Length > 1 && f[1].Length > 0) output.Append("|t=").Append(W(f[1]));
+                    string quoteText = f.ElementAtOrDefault(0) ?? "";
+                    string translation = f.ElementAtOrDefault(1) ?? "";
+                    string boldQuote = f.ElementAtOrDefault(4) ?? "";
+                    string boldTranslation = f.ElementAtOrDefault(5) ?? "";
+                    if (boldQuote.Length > 0) quoteText = Emphasize(quoteText, boldQuote);
+                    if (boldTranslation.Length > 0) translation = Emphasize(translation, boldTranslation);
+                    output.Append("#* {{quote-book|ang|text=''").Append(quoteText).Append("''");
+                    if (translation.Length > 0) output.Append("|t=").Append(W(translation));
                     if (f.Length > 2 && f[2].Length > 0) output.Append("|title=").Append(W(f[2]));
                     if (f.Length > 3 && f[3].Length > 0) output.Append("|year=").Append(W(f[3]));
                     output.AppendLine("}}");
@@ -232,6 +238,15 @@ namespace Poetry_Helper
         private static List<string> SplitValues(string value) =>
             value.Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        private static string Emphasize(string text, string phrase)
+        {
+            int index = text.IndexOf(phrase, StringComparison.Ordinal);
+            if (index < 0) return text;
+            return text.Substring(0, index) + "'''"
+                + text.Substring(index, phrase.Length) + "'''"
+                + text.Substring(index + phrase.Length);
+        }
 
         private static string W(string value) => value.Replace("|", "{{!}}", StringComparison.Ordinal);
     }
