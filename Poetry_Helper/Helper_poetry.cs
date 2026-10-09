@@ -289,8 +289,8 @@ namespace Poetry_Helper
                 return;
             }
 
-            string pos = nounRadio.Checked ? "noun" : verbRadio.Checked ? "verb" :
-                adjRadio.Checked ? "adj" : "noun";
+            string? pronunciationPos = nounRadio.Checked ? "noun" : verbRadio.Checked ? "verb" :
+                adjRadio.Checked ? "adj" : null;
             string posTemplate = nounRadio.Checked ? "ang-noun" : verbRadio.Checked ? "ang-verb" :
                 adjRadio.Checked ? "ang-adj" : "ang-adv";
             string section = nounRadio.Checked ? "Noun" : verbRadio.Checked ? "Verb" :
@@ -339,7 +339,9 @@ namespace Poetry_Helper
 
             EnsureBlankLine(output);
             output.AppendLine("===Pronunciation===");
-            output.Append("* {{ang-IPA|").Append(W(lemma)).Append("|pos=").Append(pos).AppendLine("}}");
+            output.Append("* {{ang-IPA|").Append(W(lemma));
+            if (pronunciationPos is not null) output.Append("|pos=").Append(pronunciationPos);
+            output.AppendLine("}}");
 
             EnsureBlankLine(output);
             output.Append("===").Append(section).AppendLine("===");
