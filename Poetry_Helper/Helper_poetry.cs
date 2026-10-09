@@ -39,6 +39,7 @@ namespace Poetry_Helper
             OEDnum.PlaceholderText = "DOE reference ID";
             textInput.Multiline = true;
             textInput.ScrollBars = RichTextBoxScrollBars.Vertical;
+            ExpandQuoteInputForMultilineText();
             tInput.Visible = false;
             tInput.Enabled = false;
             titleInput.PlaceholderText = "Source title";
@@ -73,8 +74,23 @@ namespace Poetry_Helper
             bosTitle.Enabled = bosNum.Enabled = checkBox2.Checked;
             OEDTitle.Enabled = OEDnum.Enabled = checkBox3.Checked;
             AutoScroll = true;
-            ClientSize = new Size(ClientSize.Width, 820);
+            ClientSize = new Size(ClientSize.Width, Math.Max(820, button2.Bottom + 18));
             UpdateAutoScrollExtent();
+        }
+
+        private void ExpandQuoteInputForMultilineText()
+        {
+            const int desiredHeight = 64;
+            int delta = desiredHeight - textInput.Height;
+            if (delta <= 0) return;
+
+            textInput.Height = desiredHeight;
+            int controlsBelowQuote = tInput.Top;
+            foreach (Control control in Controls.Cast<Control>().ToArray())
+            {
+                if (control != textInput && control.Top >= controlsBelowQuote)
+                    control.Top += delta;
+            }
         }
 
         private void InitializeTranslationLineInputs()
