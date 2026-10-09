@@ -37,6 +37,13 @@ namespace Poetry_Helper
             bosNum.PlaceholderText = "Bosworth reference ID";
             OEDTitle.PlaceholderText = "Dictionary of Old English entry";
             OEDnum.PlaceholderText = "DOE reference ID";
+            quoteBox.Text = "Quote";
+            quoteBox.AutoSize = true;
+            quoteBox.Location = new Point(12, textInput.Top + 3);
+            textInput.Location = new Point(70, textInput.Top);
+            textInput.Width = ClientSize.Width - 82;
+            tInput.Location = new Point(textInput.Left, tInput.Top);
+            tInput.Width = textInput.Width;
             textInput.Multiline = true;
             textInput.ScrollBars = RichTextBoxScrollBars.Vertical;
             ExpandQuoteInputForMultilineText();
@@ -48,6 +55,7 @@ namespace Poetry_Helper
             InitializeTranslationLineInputs();
             InitializeOptionalTermInputs();
 
+            new ToolTip().SetToolTip(quoteBox, "Enable quotation and translation inputs.");
             new ToolTip().SetToolTip(textInput, "Old English quotation. Line breaks are preserved.");
             new ToolTip().SetToolTip(translationRowsPanel, "Use one textbox per translation line. The + button adds a new line.");
             new ToolTip().SetToolTip(descendantsInput,
