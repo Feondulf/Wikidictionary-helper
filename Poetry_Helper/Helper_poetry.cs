@@ -7,6 +7,14 @@ namespace Poetry_Helper
         private RadioButton adjRadio = null!;
         private RadioButton advRadio = null!;
         private RadioButton[] partOfSpeechRadios = null!;
+        private Panel translationRowsPanel = null!;
+        private readonly List<TextBox> translationLineInputs = new();
+        private TextBox derivedTermsInput = null!;
+        private TextBox relatedTermsInput = null!;
+        private TextBox descendantsInput = null!;
+
+        private const int TranslationRowHeight = 27;
+        private const int TranslationRowStride = 32;
 
         private void GlobalInit()
         {
@@ -24,20 +32,26 @@ namespace Poetry_Helper
             textBox5.PlaceholderText = "Second term gloss (t2)";
             textBox6.PlaceholderText = "Third etymology term";
             textBox7.PlaceholderText = "Third term gloss (t3)";
-            textBox8.PlaceholderText = "Definition / gloss (separate senses with ;)";
-            textBox8.MaxLength = 4000;
+            textBox8.PlaceholderText = "Definitions; separate senses with ;";
             bosTitle.PlaceholderText = "Bosworth entry";
-            bosNum.PlaceholderText = "BT ref. number";
+            bosNum.PlaceholderText = "Bosworth reference ID";
             OEDTitle.PlaceholderText = "Dictionary of Old English entry";
-            OEDnum.PlaceholderText = "DOE ID";
+            OEDnum.PlaceholderText = "DOE reference ID";
             textInput.Multiline = true;
             textInput.ScrollBars = RichTextBoxScrollBars.Vertical;
-            tInput.Multiline = true;
-            tInput.ScrollBars = RichTextBoxScrollBars.Vertical;
+            textInput.PlaceholderText = "Old English quotation";
+            tInput.Visible = false;
+            tInput.Enabled = false;
             titleInput.PlaceholderText = "Source title";
             yearInput.PlaceholderText = "Year";
+
+            InitializeTranslationLineInputs();
+            InitializeOptionalTermInputs();
+
             new ToolTip().SetToolTip(textInput, "Old English quotation. Line breaks are preserved.");
-            new ToolTip().SetToolTip(tInput, "English translation. Use one line per translated line; + adds a translation line.");
+            new ToolTip().SetToolTip(translationRowsPanel, "Use one textbox per translation line. The + button adds a new line.");
+            new ToolTip().SetToolTip(descendantsInput,
+                "One language group per line, in the format: enm: andweard, aundward, anwerd");
 
             button1.Click += (_, _) => GenerateWikitext();
             button2.Click += (_, _) => ClearForm();
@@ -59,12 +73,75 @@ namespace Poetry_Helper
             SetQuoteInputsEnabled(quoteBox.Checked);
             bosTitle.Enabled = bosNum.Enabled = checkBox2.Checked;
             OEDTitle.Enabled = OEDnum.Enabled = checkBox3.Checked;
+            AutoScroll = true;
+            ClientSize = new Size(ClientSize.Width, 820);
+            UpdateAutoScrollExtent();
+        }
+
+        private void InitializeTranslationLineInputs()
+        {
+            translationRowsPanel = new Panel
+            {
+                Location = tInput.Location,
+                Size = new Size(tInput.Width, TranslationRowHeight),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+
+            Controls.Add(translationRowsPanel);
+            AddTranslationRow(shiftFollowingControls: false, focus: false);
+        }
+
+        private void InitializeOptionalTermInputs()
+        {
+            int top = Math.Max(bosNum.Bottom, OEDnum.Bottom) + 14;
+            derivedTermsInput = AddOptionalListInput(
+                "Derived terms", "derivedTermsInput",
+                "Old English terms, comma-separated or one per line", top, 42);
+
+            top += 52;
+            relatedTermsInput = AddOptionalListInput(
+                "Related terms", "relatedTermsInput",
+                "Related Old English terms, comma-separated or one per line", top, 42);
+
+            top += 52;
+            descendantsInput = AddOptionalListInput(
+                "Descendants", "descendantsInput",
+                "lang: term1, term2 (one language group per line)", top, 52);
+
+            button2.Top = top + descendantsInput.Height + 14;
+            AutoScroll = true;
+            ClientSize = new Size(ClientSize.Width, Math.Max(820, button2.Bottom + 18));
+        }
+
+        private TextBox AddOptionalListInput(
+            string labelText, string name, string placeholder, int top, int height)
+        {
+            var label = new Label
+            {
+                AutoSize = true,
+                Text = labelText,
+                Location = new Point(12, top + 8)
+            };
+            var input = new TextBox
+            {
+                Name = name,
+                PlaceholderText = placeholder,
+                Location = new Point(130, top),
+                Size = new Size(ClientSize.Width - 142, height),
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+
+            Controls.Add(label);
+            Controls.Add(input);
+            return input;
         }
 
         private void SetQuoteInputsEnabled(bool enabled)
         {
             textInput.Enabled = enabled;
-            tInput.Enabled = enabled;
+            foreach (TextBox line in translationLineInputs) line.Enabled = enabled;
             titleInput.Enabled = enabled;
             yearInput.Enabled = enabled;
         }
@@ -79,8 +156,10 @@ namespace Poetry_Helper
             nounRadio.Checked = true;
             comboBox1.Text = "com";
             comboBox2.SelectedItem = "m";
-            comboBox3.Text = "poetic";
-            comboBox4.Text = "hapax";
+
+            // Usage labels are optional; do not silently insert poetic or hapax.
+            comboBox3.Text = "";
+            comboBox4.Text = "";
             CentralizeNames();
         }
 
@@ -96,21 +175,95 @@ namespace Poetry_Helper
         private void AddQuoteLine()
         {
             if (!quoteBox.Checked) quoteBox.Checked = true;
+            AddTranslationRow(shiftFollowingControls: true, focus: true);
+        }
 
-            // The add button adds a translation line only; the source quotation remains untouched.
-            // Always create the next translation row, including when the field is still empty.
-            tInput.AppendText(Environment.NewLine);
+        private void AddTranslationRow(bool shiftFollowingControls, bool focus)
+        {
+            int previousHeight = translationRowsPanel.Height;
+            int rowIndex = translationLineInputs.Count;
+            var line = new TextBox
+            {
+                Name = "translationLine" + (rowIndex + 1),
+                PlaceholderText = "Translation line " + (rowIndex + 1),
+                Location = new Point(0, rowIndex * TranslationRowStride),
+                Size = new Size(Math.Max(80, translationRowsPanel.ClientSize.Width - 6), TranslationRowHeight),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Enabled = quoteBox.Checked
+            };
 
-            tInput.Focus();
-            tInput.SelectionStart = tInput.TextLength;
+            translationRowsPanel.Controls.Add(line);
+            translationLineInputs.Add(line);
+            translationRowsPanel.Height = Math.Max(
+                TranslationRowHeight,
+                translationLineInputs.Count * TranslationRowStride - (TranslationRowStride - TranslationRowHeight));
+
+            int delta = translationRowsPanel.Height - previousHeight;
+            if (shiftFollowingControls && delta != 0)
+                ShiftControlsBelowTranslationRows(previousHeight, delta);
+
+            if (focus)
+            {
+                line.Focus();
+                line.SelectionStart = line.TextLength;
+            }
+            UpdateAutoScrollExtent();
+        }
+
+        private void ShiftControlsBelowTranslationRows(int previousPanelHeight, int delta)
+        {
+            int cutoff = translationRowsPanel.Top + previousPanelHeight;
+            foreach (Control control in Controls.Cast<Control>().ToArray())
+            {
+                if (control == translationRowsPanel || control == tInput) continue;
+                if (control.Top >= cutoff) control.Top += delta;
+            }
+
+            PerformLayout();
+            UpdateAutoScrollExtent();
+        }
+
+        private void ResetTranslationRows()
+        {
+            while (translationLineInputs.Count > 1)
+            {
+                int oldHeight = translationRowsPanel.Height;
+                TextBox last = translationLineInputs[^1];
+                translationLineInputs.RemoveAt(translationLineInputs.Count - 1);
+                translationRowsPanel.Controls.Remove(last);
+                last.Dispose();
+
+                translationRowsPanel.Height = Math.Max(
+                    TranslationRowHeight,
+                    translationLineInputs.Count * TranslationRowStride - (TranslationRowStride - TranslationRowHeight));
+                int delta = translationRowsPanel.Height - oldHeight;
+                if (delta != 0) ShiftControlsBelowTranslationRows(oldHeight, delta);
+            }
+
+            foreach (TextBox line in translationLineInputs) line.Clear();
+            UpdateAutoScrollExtent();
+        }
+
+        private void UpdateAutoScrollExtent()
+        {
+            if (!AutoScroll) return;
+            int bottom = Controls.Cast<Control>()
+                .Where(control => control.Visible)
+                .Select(control => control.Bottom)
+                .DefaultIfEmpty(ClientSize.Height)
+                .Max();
+            AutoScrollMinSize = new Size(0, Math.Max(ClientSize.Height, bottom + 12));
         }
 
         private void ClearForm()
         {
+            ResetTranslationRows();
+
             foreach (TextBox box in new[]
             {
                 textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7,
-                textBox8, WordBox, bosTitle, OEDTitle, bosNum, OEDnum, titleInput, yearInput
+                textBox8, WordBox, bosTitle, OEDTitle, bosNum, OEDnum, titleInput, yearInput,
+                derivedTermsInput, relatedTermsInput, descendantsInput
             })
             {
                 box.Clear();
@@ -137,8 +290,13 @@ namespace Poetry_Helper
                 return;
             }
 
-            string pos = nounRadio.Checked ? "noun" : verbRadio.Checked ? "verb" : adjRadio.Checked ? "adj" : "adv";
-            string section = nounRadio.Checked ? "Noun" : verbRadio.Checked ? "Verb" : adjRadio.Checked ? "Adjective" : "Adverb";
+            string pos = nounRadio.Checked ? "noun" : verbRadio.Checked ? "verb" :
+                adjRadio.Checked ? "adjective" : "adverb";
+            string posTemplate = nounRadio.Checked ? "ang-noun" : verbRadio.Checked ? "ang-verb" :
+                adjRadio.Checked ? "ang-adj" : "ang-adv";
+            string section = nounRadio.Checked ? "Noun" : verbRadio.Checked ? "Verb" :
+                adjRadio.Checked ? "Adjective" : "Adverb";
+
             var output = new System.Text.StringBuilder();
             output.AppendLine("==Old English==").AppendLine();
 
@@ -159,14 +317,14 @@ namespace Poetry_Helper
             string[] terms = { textBox2.Text.Trim(), textBox3.Text.Trim(), textBox6.Text.Trim() };
             string[] glosses = { textBox4.Text.Trim(), textBox5.Text.Trim(), textBox7.Text.Trim() };
 
-            if (terms.Any(s => s.Length > 0) || glosses.Any(s => s.Length > 0))
+            if (terms.Any(value => value.Length > 0) || glosses.Any(value => value.Length > 0))
             {
                 EnsureBlankLine(output);
                 output.AppendLine("===Etymology===");
                 string template = etymology == "af" ? "af" : "com";
                 output.Append("From {{").Append(template).Append("|1=ang");
 
-                // Explicit argument numbers preserve the relation between each term and t1/t2/t3.
+                // Explicit term indexes keep each t1/t2/t3 gloss attached to its intended component.
                 for (int i = 0; i < terms.Length; i++)
                 {
                     if (terms[i].Length > 0)
@@ -189,33 +347,25 @@ namespace Poetry_Helper
 
             if (nounRadio.Checked)
             {
-                string gender = comboBox2.Text.Trim();
-                output.Append("{{ang-noun");
-                if (gender.Length > 0) output.Append('|').Append(W(gender));
-                output.Append("|head=").Append(W(lemma)).Append("}}");
+                output.Append("{{ang-noun|head=").Append(W(lemma));
+                if (comboBox2.Text.Trim().Length > 0)
+                    output.Append('|').Append(W(comboBox2.Text.Trim()));
+                output.Append("}}");
             }
             else
             {
-                // Keep the basic POS path adaptable; noun-specific morphology remains the fully
-                // supported form while each selection still supplies its own pronunciation pos.
-                output.Append("{{ang-").Append(pos).Append('|').Append(W(lemma)).Append("}}");
+                output.Append("{{").Append(posTemplate).Append('|').Append(W(lemma)).Append("}}");
             }
-            output.AppendLine();
 
-            var tags = new[] { comboBox3.Text.Trim(), comboBox4.Text.Trim() }
-                .Where(s => s.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToArray();
+            string[] tags = { comboBox3.Text.Trim(), comboBox4.Text.Trim() };
+            tags = tags.Where(value => value.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+            if (tags.Length > 0)
+                output.Append(" {{tlb|ang|").Append(string.Join("|", tags.Select(W))).Append("}}");
+            output.AppendLine().AppendLine();
 
-            List<string> senses = SplitSenses(textBox8.Text);
-            if (senses.Count == 0) senses.Add("[[" + lemma + "]]");
-            foreach (string sense in senses)
-            {
-                output.Append("#");
-                if (tags.Length > 0)
-                    output.Append(" {{lb|ang|").Append(string.Join("|", tags.Select(W))).Append("}}");
-                output.Append(' ').AppendLine(sense);
-            }
+            foreach (string sense in SplitSenses(textBox8.Text))
+                output.Append("# ").AppendLine(sense);
 
             if (quoteBox.Checked && textInput.Text.Trim().Length > 0)
             {
@@ -229,7 +379,8 @@ namespace Poetry_Helper
                 }
 
                 string quotedText = FormatQuoteText(textInput.Text, lemma);
-                string translations = FormatMultiline(tInput.Text);
+                string translations = FormatMultiline(string.Join(
+                    Environment.NewLine, translationLineInputs.Select(line => line.Text)));
                 output.Append("#* {{quote-book|ang|title=").Append(W(title));
                 if (yearInput.Text.Trim().Length > 0)
                     output.Append("|year=").Append(W(yearInput.Text.Trim()));
@@ -247,6 +398,16 @@ namespace Poetry_Helper
                     .Append(W(comboBox2.Text.Trim())).Append('|')
                     .Append(W(lemma)).AppendLine("}}");
             }
+            else if (adjRadio.Checked)
+            {
+                EnsureBlankLine(output);
+                output.AppendLine("====Declension====");
+                output.Append("{{ang-adecl|").Append(W(lemma)).AppendLine("}}");
+            }
+
+            AppendLinkedTermSection(output, "Derived terms", derivedTermsInput.Text);
+            AppendLinkedTermSection(output, "Related terms", relatedTermsInput.Text);
+            AppendDescendantSection(output, descendantsInput.Text);
 
             if (checkBox2.Checked || checkBox3.Checked)
             {
@@ -275,6 +436,46 @@ namespace Poetry_Helper
             }
 
             ShowGeneratedWikitext(output.ToString(), lemma);
+        }
+
+        private static void AppendLinkedTermSection(
+            System.Text.StringBuilder output, string heading, string rawTerms)
+        {
+            List<string> terms = SplitValues(rawTerms);
+            if (terms.Count == 0) return;
+
+            EnsureBlankLine(output);
+            output.Append("====").Append(heading).AppendLine("====");
+            foreach (string term in terms)
+                output.Append("* {{l|ang|").Append(W(term)).AppendLine("}}");
+        }
+
+        private static void AppendDescendantSection(
+            System.Text.StringBuilder output, string rawDescendants)
+        {
+            var groups = new List<(string Language, List<string> Terms)>();
+            string normalized = rawDescendants.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+
+            foreach (string rawLine in normalized.Split('\n'))
+            {
+                string line = rawLine.Trim();
+                if (line.Length == 0) continue;
+
+                int colon = line.IndexOf(':');
+                if (colon <= 0 || colon == line.Length - 1) continue;
+
+                string language = line[..colon].Trim();
+                List<string> terms = SplitValues(line[(colon + 1)..]);
+                if (language.Length > 0 && terms.Count > 0)
+                    groups.Add((language, terms));
+            }
+
+            if (groups.Count == 0) return;
+            EnsureBlankLine(output);
+            output.AppendLine("====Descendants====");
+            foreach ((string language, List<string> terms) in groups)
+                output.Append("* {{desc|").Append(W(language)).Append('|')
+                    .Append(string.Join("|", terms.Select(W))).AppendLine("}}");
         }
 
         private void ShowGeneratedWikitext(string wikitext, string lemma)
@@ -334,17 +535,19 @@ namespace Poetry_Helper
         }
 
         private static List<string> SplitValues(string value) =>
-            value.Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            value.Split(new[] { ',', ';', '\\n', '\\r' },
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
         private static List<string> SplitSenses(string value) =>
-            value.Split(new[] { ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .ToList();
+            value.Split(new[] { ';', '\\n', '\\r' },
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(sense => sense.Length > 0).ToList();
 
         private static string FormatQuoteText(string value, string lemma)
         {
-            string normalized = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
-            string[] lines = normalized.Split('\n');
+            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
+            string[] lines = normalized.Split('\\n');
             int count = lines.Length;
             while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
             if (count == 0) return "";
@@ -360,8 +563,8 @@ namespace Poetry_Helper
 
         private static string FormatMultiline(string value)
         {
-            string normalized = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
-            string[] lines = normalized.Split('\n');
+            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
+            string[] lines = normalized.Split('\\n');
             int count = lines.Length;
             while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
             for (int i = 0; i < count; i++) lines[i] = W(lines[i].Trim());
