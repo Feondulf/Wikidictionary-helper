@@ -99,11 +99,8 @@ namespace Poetry_Helper
             if (!quoteBox.Checked) quoteBox.Checked = true;
 
             // The add button adds a translation line only; the source quotation remains untouched.
-            if (tInput.TextLength > 0 &&
-                !tInput.Text.EndsWith(Environment.NewLine, StringComparison.Ordinal))
-            {
-                tInput.AppendText(Environment.NewLine);
-            }
+            // Always create the next translation row, including when the field is still empty.
+            tInput.AppendText(Environment.NewLine);
 
             tInput.Focus();
             tInput.SelectionStart = tInput.TextLength;
