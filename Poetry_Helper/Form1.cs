@@ -273,7 +273,7 @@ namespace Poetry_Helper
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Width = 160
             };
-            declensionInput.Items.AddRange(new object[] { "", "a", "ō", "i", "nd", "u" });
+            declensionInput.Items.AddRange(new object[] { "", "a", "o", "i", "nd", "u" });
             declensionInput.SelectedIndex = 0;
 
             AddRow(table, "Gender", genderInput);
