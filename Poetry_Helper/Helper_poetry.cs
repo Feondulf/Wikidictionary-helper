@@ -243,8 +243,13 @@ namespace Poetry_Helper
             if (doeEntry.Length > 0 || doeId.Length > 0)
             {
                 var template = new System.Text.StringBuilder("* {{R:ang:Dictionary of Old English");
-                if (doeEntry.Length > 0) template.Append('|').Append(W(doeEntry));
-                if (doeId.Length > 0) template.Append('|').Append(W(doeId));
+                if (doeEntry.Length > 0)
+                    template.Append('|').Append(W(doeEntry));
+                if (doeId.Length > 0)
+                {
+                    if (doeEntry.Length > 0) template.Append('|').Append(W(doeId));
+                    else template.Append("|id=").Append(W(doeId));
+                }
                 template.Append("}}");
                 lines.Add(template.ToString());
             }
