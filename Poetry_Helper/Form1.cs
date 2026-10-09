@@ -7,7 +7,9 @@ namespace Poetry_Helper
             InitializeComponent();
             GlobalInit();
             NamesInit();
-        }
 
+            // Keep the group centered if the client area changes size.
+            ClientSizeChanged += (_, _) => CentralizeNames();
+        }
     }
 }
