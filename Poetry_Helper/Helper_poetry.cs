@@ -338,17 +338,17 @@ namespace Poetry_Helper
         }
 
         private static List<string> SplitValues(string value) =>
-            value.Split(new[] { ',', ';', '\\n', '\\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            value.Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
         private static List<string> SplitSenses(string value) =>
-            value.Split(new[] { ';', '\\n', '\\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            value.Split(new[] { ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToList();
 
         private static string FormatQuoteText(string value, string lemma)
         {
-            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
-            string[] lines = normalized.Split('\\n');
+            string normalized = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+            string[] lines = normalized.Split('\n');
             int count = lines.Length;
             while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
             if (count == 0) return "";
@@ -364,8 +364,8 @@ namespace Poetry_Helper
 
         private static string FormatMultiline(string value)
         {
-            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
-            string[] lines = normalized.Split('\\n');
+            string normalized = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+            string[] lines = normalized.Split('\n');
             int count = lines.Length;
             while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
             for (int i = 0; i < count; i++) lines[i] = W(lines[i].Trim());
