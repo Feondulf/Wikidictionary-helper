@@ -37,6 +37,12 @@ namespace Poetry_Helper
 
         private RichTextBox outputBox = null!;
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) toolTip.Dispose();
+            base.Dispose(disposing);
+        }
+
         public Form1()
         {
             Text = "Old English Wiktionary Entry Builder";
@@ -56,7 +62,7 @@ namespace Poetry_Helper
                 SplitterDistance = 700,
                 Panel1MinSize = 500,
                 Panel2MinSize = 420,
-                FixedPanel = FixedPanel.None
+                FixedPanel = System.Windows.Forms.FixedPanel.None
             };
             Controls.Add(split);
 
