@@ -147,7 +147,7 @@
             // comboBox1
             // 
             comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "af", "com", "inh+" });
+            comboBox1.Items.AddRange(new object[] { "af", "com" });
             comboBox1.Location = new Point(98, 152);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(59, 28);
