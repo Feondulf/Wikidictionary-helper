@@ -67,7 +67,6 @@ namespace Poetry_Helper
             tInput.Enabled = enabled;
             titleInput.Enabled = enabled;
             yearInput.Enabled = enabled;
-            AddLineButtpn.Enabled = enabled;
         }
 
         private void NamesInit()
