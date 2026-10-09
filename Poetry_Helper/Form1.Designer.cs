@@ -32,6 +32,31 @@
             radioButton2 = new RadioButton();
             radioButton3 = new RadioButton();
             radioButton4 = new RadioButton();
+            button1 = new Button();
+            checkBox1 = new CheckBox();
+            textBox1 = new TextBox();
+            label1 = new Label();
+            comboBox1 = new ComboBox();
+            textBox2 = new TextBox();
+            textBox3 = new TextBox();
+            textBox4 = new TextBox();
+            textBox5 = new TextBox();
+            textBox6 = new TextBox();
+            textBox7 = new TextBox();
+            comboBox2 = new ComboBox();
+            comboBox3 = new ComboBox();
+            comboBox4 = new ComboBox();
+            comboBox5 = new ComboBox();
+            textBox8 = new TextBox();
+            AddLineButtpn = new Button();
+            quoteBox = new CheckBox();
+            richTextBox1 = new RichTextBox();
+            label2 = new Label();
+            checkBox2 = new CheckBox();
+            checkBox3 = new CheckBox();
+            textBox9 = new TextBox();
+            textBox10 = new TextBox();
+            button2 = new Button();
             SuspendLayout();
             // 
             // radioButton1
@@ -39,10 +64,10 @@
             radioButton1.AutoSize = true;
             radioButton1.Location = new Point(12, 12);
             radioButton1.Name = "radioButton1";
-            radioButton1.Size = new Size(117, 24);
+            radioButton1.Size = new Size(66, 24);
             radioButton1.TabIndex = 0;
             radioButton1.TabStop = true;
-            radioButton1.Text = "radioButton1";
+            radioButton1.Text = "Noun";
             radioButton1.UseVisualStyleBackColor = true;
             // 
             // radioButton2
@@ -50,10 +75,10 @@
             radioButton2.AutoSize = true;
             radioButton2.Location = new Point(135, 12);
             radioButton2.Name = "radioButton2";
-            radioButton2.Size = new Size(117, 24);
+            radioButton2.Size = new Size(60, 24);
             radioButton2.TabIndex = 1;
             radioButton2.TabStop = true;
-            radioButton2.Text = "radioButton2";
+            radioButton2.Text = "Verb";
             radioButton2.UseVisualStyleBackColor = true;
             // 
             // radioButton3
@@ -61,10 +86,10 @@
             radioButton3.AutoSize = true;
             radioButton3.Location = new Point(258, 12);
             radioButton3.Name = "radioButton3";
-            radioButton3.Size = new Size(117, 24);
+            radioButton3.Size = new Size(92, 24);
             radioButton3.TabIndex = 2;
             radioButton3.TabStop = true;
-            radioButton3.Text = "radioButton3";
+            radioButton3.Text = "Adjective";
             radioButton3.UseVisualStyleBackColor = true;
             // 
             // radioButton4
@@ -72,17 +97,251 @@
             radioButton4.AutoSize = true;
             radioButton4.Location = new Point(381, 12);
             radioButton4.Name = "radioButton4";
-            radioButton4.Size = new Size(117, 24);
+            radioButton4.Size = new Size(78, 24);
             radioButton4.TabIndex = 3;
             radioButton4.TabStop = true;
-            radioButton4.Text = "radioButton4";
+            radioButton4.Text = "Adverb";
             radioButton4.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(195, 42);
+            button1.Name = "button1";
+            button1.Size = new Size(94, 29);
+            button1.TabIndex = 4;
+            button1.Text = "Make";
+            button1.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(12, 93);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(145, 24);
+            checkBox1.TabIndex = 5;
+            checkBox1.Text = "Alternative forms";
+            checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(163, 90);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(335, 27);
+            textBox1.TabIndex = 6;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(12, 130);
+            label1.Name = "label1";
+            label1.Size = new Size(80, 20);
+            label1.TabIndex = 7;
+            label1.Text = "Etymology";
+            // 
+            // comboBox1
+            // 
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Items.AddRange(new object[] { "af", "com", "inh+" });
+            comboBox1.Location = new Point(98, 130);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(59, 28);
+            comboBox1.TabIndex = 8;
+            // 
+            // textBox2
+            // 
+            textBox2.Location = new Point(163, 131);
+            textBox2.Name = "textBox2";
+            textBox2.Size = new Size(126, 27);
+            textBox2.TabIndex = 9;
+            // 
+            // textBox3
+            // 
+            textBox3.Location = new Point(295, 131);
+            textBox3.Name = "textBox3";
+            textBox3.Size = new Size(126, 27);
+            textBox3.TabIndex = 10;
+            // 
+            // textBox4
+            // 
+            textBox4.Location = new Point(163, 164);
+            textBox4.Name = "textBox4";
+            textBox4.Size = new Size(126, 27);
+            textBox4.TabIndex = 11;
+            // 
+            // textBox5
+            // 
+            textBox5.Location = new Point(296, 164);
+            textBox5.Name = "textBox5";
+            textBox5.Size = new Size(125, 27);
+            textBox5.TabIndex = 12;
+            // 
+            // textBox6
+            // 
+            textBox6.Location = new Point(427, 131);
+            textBox6.Name = "textBox6";
+            textBox6.Size = new Size(85, 27);
+            textBox6.TabIndex = 13;
+            // 
+            // textBox7
+            // 
+            textBox7.Location = new Point(427, 164);
+            textBox7.Name = "textBox7";
+            textBox7.Size = new Size(85, 27);
+            textBox7.TabIndex = 14;
+            // 
+            // comboBox2
+            // 
+            comboBox2.FormattingEnabled = true;
+            comboBox2.Items.AddRange(new object[] { "m", "f", "n" });
+            comboBox2.Location = new Point(12, 197);
+            comboBox2.Name = "comboBox2";
+            comboBox2.Size = new Size(41, 28);
+            comboBox2.TabIndex = 15;
+            comboBox2.Text = "m";
+            // 
+            // comboBox3
+            // 
+            comboBox3.FormattingEnabled = true;
+            comboBox3.Items.AddRange(new object[] { "poetic" });
+            comboBox3.Location = new Point(59, 197);
+            comboBox3.Name = "comboBox3";
+            comboBox3.Size = new Size(98, 28);
+            comboBox3.TabIndex = 16;
+            // 
+            // comboBox4
+            // 
+            comboBox4.FormattingEnabled = true;
+            comboBox4.Items.AddRange(new object[] { "hapax" });
+            comboBox4.Location = new Point(163, 197);
+            comboBox4.Name = "comboBox4";
+            comboBox4.Size = new Size(105, 28);
+            comboBox4.TabIndex = 17;
+            // 
+            // comboBox5
+            // 
+            comboBox5.FormattingEnabled = true;
+            comboBox5.Items.AddRange(new object[] { "a", "o", "i", "nd", "u" });
+            comboBox5.Location = new Point(462, 197);
+            comboBox5.Name = "comboBox5";
+            comboBox5.Size = new Size(50, 28);
+            comboBox5.TabIndex = 18;
+            // 
+            // textBox8
+            // 
+            textBox8.Location = new Point(12, 248);
+            textBox8.Name = "textBox8";
+            textBox8.Size = new Size(500, 27);
+            textBox8.TabIndex = 19;
+            // 
+            // AddLineButtpn
+            // 
+            AddLineButtpn.Location = new Point(243, 308);
+            AddLineButtpn.Name = "AddLineButtpn";
+            AddLineButtpn.Size = new Size(46, 29);
+            AddLineButtpn.TabIndex = 20;
+            AddLineButtpn.Text = "+";
+            AddLineButtpn.UseVisualStyleBackColor = true;
+            // 
+            // quoteBox
+            // 
+            quoteBox.AutoSize = true;
+            quoteBox.Location = new Point(12, 283);
+            quoteBox.Name = "quoteBox";
+            quoteBox.Size = new Size(18, 17);
+            quoteBox.TabIndex = 22;
+            quoteBox.UseVisualStyleBackColor = true;
+            quoteBox.CheckedChanged += checkBox2_CheckedChanged;
+            // 
+            // richTextBox1
+            // 
+            richTextBox1.Location = new Point(36, 281);
+            richTextBox1.Name = "richTextBox1";
+            richTextBox1.Size = new Size(476, 26);
+            richTextBox1.TabIndex = 23;
+            richTextBox1.Text = "";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(11, 504);
+            label2.Name = "label2";
+            label2.Size = new Size(81, 20);
+            label2.TabIndex = 24;
+            label2.Text = "References";
+            // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(98, 503);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(93, 24);
+            checkBox2.TabIndex = 25;
+            checkBox2.Text = "Bosworth";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox3
+            // 
+            checkBox3.AutoSize = true;
+            checkBox3.Location = new Point(313, 504);
+            checkBox3.Name = "checkBox3";
+            checkBox3.Size = new Size(61, 24);
+            checkBox3.TabIndex = 26;
+            checkBox3.Text = "OED";
+            checkBox3.UseVisualStyleBackColor = true;
+            // 
+            // textBox9
+            // 
+            textBox9.Location = new Point(97, 527);
+            textBox9.Name = "textBox9";
+            textBox9.Size = new Size(210, 27);
+            textBox9.TabIndex = 27;
+            // 
+            // textBox10
+            // 
+            textBox10.Location = new Point(313, 527);
+            textBox10.Name = "textBox10";
+            textBox10.Size = new Size(198, 27);
+            textBox10.TabIndex = 28;
+            // 
+            // button2
+            // 
+            button2.Location = new Point(417, 560);
+            button2.Name = "button2";
+            button2.Size = new Size(94, 29);
+            button2.TabIndex = 29;
+            button2.Text = "Clear";
+            button2.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(524, 583);
+            ClientSize = new Size(524, 599);
+            Controls.Add(button2);
+            Controls.Add(textBox10);
+            Controls.Add(textBox9);
+            Controls.Add(checkBox3);
+            Controls.Add(checkBox2);
+            Controls.Add(label2);
+            Controls.Add(richTextBox1);
+            Controls.Add(quoteBox);
+            Controls.Add(AddLineButtpn);
+            Controls.Add(textBox8);
+            Controls.Add(comboBox5);
+            Controls.Add(comboBox4);
+            Controls.Add(comboBox3);
+            Controls.Add(comboBox2);
+            Controls.Add(textBox7);
+            Controls.Add(textBox6);
+            Controls.Add(textBox5);
+            Controls.Add(textBox4);
+            Controls.Add(textBox3);
+            Controls.Add(textBox2);
+            Controls.Add(comboBox1);
+            Controls.Add(label1);
+            Controls.Add(textBox1);
+            Controls.Add(checkBox1);
+            Controls.Add(button1);
             Controls.Add(radioButton4);
             Controls.Add(radioButton3);
             Controls.Add(radioButton2);
@@ -102,5 +361,30 @@
         private RadioButton radioButton2;
         private RadioButton radioButton3;
         private RadioButton radioButton4;
+        private Button button1;
+        private CheckBox checkBox1;
+        private TextBox textBox1;
+        private Label label1;
+        private ComboBox comboBox1;
+        private TextBox textBox2;
+        private TextBox textBox3;
+        private TextBox textBox4;
+        private TextBox textBox5;
+        private TextBox textBox6;
+        private TextBox textBox7;
+        private ComboBox comboBox2;
+        private ComboBox comboBox3;
+        private ComboBox comboBox4;
+        private ComboBox comboBox5;
+        private TextBox textBox8;
+        private Button AddLineButtpn;
+        private CheckBox quoteBox;
+        private RichTextBox richTextBox1;
+        private Label label2;
+        private CheckBox checkBox2;
+        private CheckBox checkBox3;
+        private TextBox textBox9;
+        private TextBox textBox10;
+        private Button button2;
     }
 }

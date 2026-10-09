@@ -11,5 +11,10 @@ namespace Poetry_Helper
             // Keep the group centered if the client area changes size.
             ClientSizeChanged += (_, _) => CentralizeNames();
         }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
