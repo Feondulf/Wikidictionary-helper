@@ -119,6 +119,7 @@ namespace Poetry_Helper
                 Dock = DockStyle.Fill,
                 Font = new Font("Consolas", 10),
                 WordWrap = false,
+                ScrollBars = RichTextBoxScrollBars.Both,
                 DetectUrls = false,
                 AcceptsTab = true,
                 HideSelection = false
