@@ -173,10 +173,63 @@ namespace Poetry_Helper
                 if (checkBox3.Checked && textBox10.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:Dictionary of Old English|" + W(textBox10.Text.Trim()) + "}}");
             }
 
-            using var dialog = new SaveFileDialog { Title = "Save Wiktionary wikitext", Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*", FileName = lemma + ".txt" };
-            var choice = MessageBox.Show(output.ToString() + Environment.NewLine + Environment.NewLine + "Copy generated wikitext to the clipboard?", "Generated wikitext", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-            if (choice == DialogResult.Yes) Clipboard.SetText(output.ToString());
-            else if (choice == DialogResult.No && dialog.ShowDialog(this) == DialogResult.OK) System.IO.File.WriteAllText(dialog.FileName, output.ToString(), new System.Text.UTF8Encoding(true));
+            ShowGeneratedWikitext(output.ToString(), lemma);
+        }
+
+        private void ShowGeneratedWikitext(string wikitext, string lemma)
+        {
+            using Form preview = new()
+            {
+                Text = "Generated Wiktionary wikitext",
+                StartPosition = FormStartPosition.CenterParent,
+                Width = 900,
+                Height = 700,
+                MinimizeBox = false
+            };
+            var text = new RichTextBox
+            {
+                Dock = DockStyle.Fill,
+                Font = new System.Drawing.Font("Consolas", 10),
+                WordWrap = false,
+                DetectUrls = false,
+                ReadOnly = false,
+                Text = wikitext
+            };
+            var buttons = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 44,
+                FlowDirection = FlowDirection.RightToLeft,
+                Padding = new Padding(6)
+            };
+            var close = new Button { Text = "Close", AutoSize = true, DialogResult = DialogResult.Cancel };
+            var save = new Button { Text = "Save…", AutoSize = true };
+            var copy = new Button { Text = "Copy", AutoSize = true };
+            copy.Click += (_, _) =>
+            {
+                Clipboard.SetText(text.Text);
+                MessageBox.Show(preview, "Wikitext copied to the clipboard.", "Copied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+            save.Click += (_, _) =>
+            {
+                using var dialog = new SaveFileDialog
+                {
+                    Title = "Save Wiktionary wikitext",
+                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                    FileName = lemma + ".txt",
+                    DefaultExt = "txt",
+                    AddExtension = true
+                };
+                if (dialog.ShowDialog(preview) == DialogResult.OK)
+                    System.IO.File.WriteAllText(dialog.FileName, text.Text, new System.Text.UTF8Encoding(true));
+            };
+            buttons.Controls.Add(close);
+            buttons.Controls.Add(save);
+            buttons.Controls.Add(copy);
+            preview.Controls.Add(text);
+            preview.Controls.Add(buttons);
+            preview.CancelButton = close;
+            preview.ShowDialog(this);
         }
 
         private static List<string> SplitValues(string value) =>
