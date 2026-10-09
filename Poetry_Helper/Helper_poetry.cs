@@ -100,7 +100,7 @@ namespace Poetry_Helper
             string custom = draft.CustomEtymologyText.Trim();
             string result = "";
 
-            if (Equals(draft.EtymologyTemplate.Trim(), "Custom text"))
+            if (string.Equals(draft.EtymologyTemplate.Trim(), "Custom text", StringComparison.Ordinal))
             {
                 if (custom.Length == 0)
                     throw new ArgumentException("Enter the complete etymology text or choose com/af.");
