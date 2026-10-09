@@ -39,7 +39,6 @@ namespace Poetry_Helper
             OEDnum.PlaceholderText = "DOE reference ID";
             textInput.Multiline = true;
             textInput.ScrollBars = RichTextBoxScrollBars.Vertical;
-            textInput.PlaceholderText = "Old English quotation";
             tInput.Visible = false;
             tInput.Enabled = false;
             titleInput.PlaceholderText = "Source title";
@@ -291,7 +290,7 @@ namespace Poetry_Helper
             }
 
             string pos = nounRadio.Checked ? "noun" : verbRadio.Checked ? "verb" :
-                adjRadio.Checked ? "adjective" : "adverb";
+                adjRadio.Checked ? "adj" : "noun";
             string posTemplate = nounRadio.Checked ? "ang-noun" : verbRadio.Checked ? "ang-verb" :
                 adjRadio.Checked ? "ang-adj" : "ang-adv";
             string section = nounRadio.Checked ? "Noun" : verbRadio.Checked ? "Verb" :
@@ -535,19 +534,19 @@ namespace Poetry_Helper
         }
 
         private static List<string> SplitValues(string value) =>
-            value.Split(new[] { ',', ';', '\\n', '\\r' },
+            value.Split(new[] { ',', ';', '\n', '\r' },
                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
         private static List<string> SplitSenses(string value) =>
-            value.Split(new[] { ';', '\\n', '\\r' },
+            value.Split(new[] { ';', '\n', '\r' },
                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Where(sense => sense.Length > 0).ToList();
 
         private static string FormatQuoteText(string value, string lemma)
         {
-            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
-            string[] lines = normalized.Split('\\n');
+            string normalized = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+            string[] lines = normalized.Split('\n');
             int count = lines.Length;
             while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
             if (count == 0) return "";
@@ -563,8 +562,8 @@ namespace Poetry_Helper
 
         private static string FormatMultiline(string value)
         {
-            string normalized = value.Replace("\\r\\n", "\\n", StringComparison.Ordinal).Replace('\\r', '\\n');
-            string[] lines = normalized.Split('\\n');
+            string normalized = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+            string[] lines = normalized.Split('\n');
             int count = lines.Length;
             while (count > 0 && lines[count - 1].Trim().Length == 0) count--;
             for (int i = 0; i < count; i++) lines[i] = W(lines[i].Trim());
