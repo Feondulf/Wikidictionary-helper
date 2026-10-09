@@ -24,23 +24,23 @@ namespace Poetry_Helper
             textBox6.PlaceholderText = "Pronunciation spelling (optional)";
             textBox7.PlaceholderText = "Extra IPA parameter (optional)";
             textBox8.PlaceholderText = "Lemma / headword";
-            textBox9.PlaceholderText = "Bosworth entry";
-            textBox10.PlaceholderText = "Dictionary of Old English entry";
-            richTextBox1.Multiline = true;
-            richTextBox1.ScrollBars = RichTextBoxScrollBars.Vertical;
-            new ToolTip().SetToolTip(richTextBox1, "One quote per line: Old English text | translation | title | year");
+            bosTitle.PlaceholderText = "Bosworth entry";
+            OEDTitle.PlaceholderText = "Dictionary of Old English entry";
+            textInput.Multiline = true;
+            textInput.ScrollBars = RichTextBoxScrollBars.Vertical;
+            new ToolTip().SetToolTip(textInput, "One quote per line: Old English text | translation | title | year");
 
             button1.Click += (_, _) => GenerateWikitext();
             button2.Click += (_, _) => ClearForm();
             AddLineButtpn.Click += (_, _) => AddQuoteLine();
             checkBox1.CheckedChanged += (_, _) => textBox1.Enabled = checkBox1.Checked;
-            quoteBox.CheckedChanged += (_, _) => richTextBox1.Enabled = quoteBox.Checked;
-            checkBox2.CheckedChanged += (_, _) => textBox9.Enabled = checkBox2.Checked;
-            checkBox3.CheckedChanged += (_, _) => textBox10.Enabled = checkBox3.Checked;
+            quoteBox.CheckedChanged += (_, _) => textInput.Enabled = quoteBox.Checked;
+            checkBox2.CheckedChanged += (_, _) => bosTitle.Enabled = checkBox2.Checked;
+            checkBox3.CheckedChanged += (_, _) => OEDTitle.Enabled = checkBox3.Checked;
             textBox1.Enabled = checkBox1.Checked;
-            richTextBox1.Enabled = quoteBox.Checked;
-            textBox9.Enabled = checkBox2.Checked;
-            textBox10.Enabled = checkBox3.Checked;
+            textInput.Enabled = quoteBox.Checked;
+            bosTitle.Enabled = checkBox2.Checked;
+            OEDTitle.Enabled = checkBox3.Checked;
         }
 
         private void NamesInit()
@@ -70,16 +70,16 @@ namespace Poetry_Helper
         private void AddQuoteLine()
         {
             if (!quoteBox.Checked) quoteBox.Checked = true;
-            if (richTextBox1.TextLength > 0 && !richTextBox1.Text.EndsWith(Environment.NewLine, StringComparison.Ordinal))
-                richTextBox1.AppendText(Environment.NewLine);
-            richTextBox1.Focus();
-            richTextBox1.SelectionStart = richTextBox1.TextLength;
+            if (textInput.TextLength > 0 && !textInput.Text.EndsWith(Environment.NewLine, StringComparison.Ordinal))
+                textInput.AppendText(Environment.NewLine);
+            textInput.Focus();
+            textInput.SelectionStart = textInput.TextLength;
         }
 
         private void ClearForm()
         {
-            foreach (TextBox box in new[] { textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7, textBox8, textBox9, textBox10 }) box.Clear();
-            richTextBox1.Clear();
+            foreach (TextBox box in new[] { textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7, textBox8, bosTitle, OEDTitle }) box.Clear();
+            textInput.Clear();
             checkBox1.Checked = quoteBox.Checked = checkBox2.Checked = checkBox3.Checked = false;
             nounRadio.Checked = true;
             comboBox1.Text = "com"; comboBox2.SelectedItem = "m";
@@ -148,7 +148,7 @@ namespace Poetry_Helper
 
             if (quoteBox.Checked)
             {
-                foreach (string line in richTextBox1.Lines.Select(s => s.Trim()).Where(s => s.Length > 0))
+                foreach (string line in textInput.Lines.Select(s => s.Trim()).Where(s => s.Length > 0))
                 {
                     string[] f = line.Split('|').Select(s => s.Trim()).ToArray();
                     string quoteText = f.ElementAtOrDefault(0) ?? "";
@@ -172,8 +172,8 @@ namespace Poetry_Helper
             if (checkBox2.Checked || checkBox3.Checked)
             {
                 output.AppendLine("===References===");
-                if (checkBox2.Checked && textBox9.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:BT|" + W(textBox9.Text.Trim()) + "}}");
-                if (checkBox3.Checked && textBox10.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:Dictionary of Old English|" + W(textBox10.Text.Trim()) + "}}");
+                if (checkBox2.Checked && bosTitle.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:BT|" + W(bosTitle.Text.Trim()) + "}}");
+                if (checkBox3.Checked && OEDTitle.Text.Trim().Length > 0) output.AppendLine("* {{R:ang:Dictionary of Old English|" + W(OEDTitle.Text.Trim()) + "}}");
             }
 
             ShowGeneratedWikitext(output.ToString(), lemma);
